@@ -245,4 +245,39 @@ async function usar(){
 
     render();
 
+}
 
+function logAudit(tipo,token){
+    let a=getAUD();
+    a.push({tipo,token,fecha:new Date().toISOString()});
+    saveAUD(a);
+    renderAudit();
+}
+
+function render(){
+    let user=JSON.parse(localStorage.getItem("user"));
+    let db=getDB();
+
+    hist.innerHTML=db.filter(x=>x.user===user.nombre).map(x=>`
+    <p>
+    ${x.token}<br>
+    ${x.estado}<br>
+    intentos:${x.intentos}
+    </p>
+    `).join("");
+}
+
+function renderAudit(){
+    let a=getAUD();
+    audit.innerHTML=a.map(x=>`
+    <p>${x.tipo} - ${x.token}</p>
+    `).join("");
+}
+
+render();
+renderAudit();
+
+</script>
+
+</body>
+</html>
