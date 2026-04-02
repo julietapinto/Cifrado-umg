@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Secure Token System</title>
+
+<style>
+:root {
+  --vino: #7a2531;
+  --dark: #021223;
+  --soft: #b2b4b3;
+  --white: #ffffff;
+}
+
+body {
+  margin: 0;
+  font-family: Segoe UI;
+  background: var(--dark);
+  color: var(--white);
+}
+
+header {
+  background: var(--vino);
+  padding: 20px;
+  text-align: center;
+}
+
+
+
