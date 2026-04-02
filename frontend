@@ -92,5 +92,115 @@ button:hover {
 <button onclick="crear()">Generar Token</button>
 <div id="out"></div>
 </div>
+<div class="card">
+<h3>Usar Token</h3>
+<input id="token">
+<button onclick="usar()">Descifrar</button>
+<div id="res"></div>
+</div>
+
+<div class="card">
+<h3>Historial</h3>
+<div id="hist"></div>
+</div>
+
+<div class="card">
+<h3>Auditoría</h3>
+<div id="audit"></div>
+</div>
+
+</div>
+
+<script>
+
+const DB="tokens";
+const AUD="audit";
+
+function getDB(){ return JSON.parse(localStorage.getItem(DB)||"[]"); }
+function saveDB(d){ localStorage.setItem(DB,JSON.stringify(d)); exportJSON(); }
+
+function getAUD(){ return JSON.parse(localStorage.getItem(AUD)||"[]"); }
+function saveAUD(a){ localStorage.setItem(AUD,JSON.stringify(a)); exportJSON(); }
+
+function exportJSON(){
+    let data={
+        tokens:getDB(),
+        auditoria:getAUD()
+    };
+    let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="PTokens.json";
+    a.click();
+}
+
+function uid(){ return Math.random().toString(36).substring(2,10); }
+
+async function genKeys(bits){
+    let k=await crypto.subtle.generateKey({
+        name:"RSA-OAEP",
+        modulusLength:Number(bits),
+        publicExponent:new Uint8Array([1,0,1]),
+        hash:"SHA-256"
+    },true,["encrypt","decrypt"]);
+
+    return {
+        pub:await crypto.subtle.exportKey("jwk",k.publicKey),
+        priv:await crypto.subtle.exportKey("jwk",k.privateKey)
+    }
+}
+
+async function encrypt(txt,pub){
+    let key=await crypto.subtle.importKey("jwk",pub,{name:"RSA-OAEP",hash:"SHA-256"},true,["encrypt"]);
+    let enc=new TextEncoder().encode(txt);
+    let res=await crypto.subtle.encrypt({name:"RSA-OAEP"},key,enc);
+    return btoa(String.fromCharCode(...new Uint8Array(res)));
+}
+
+async function decrypt(txt,priv){
+    let key=await crypto.subtle.importKey("jwk",priv,{name:"RSA-OAEP",hash:"SHA-256"},true,["decrypt"]);
+    let buf=Uint8Array.from(atob(txt),c=>c.charCodeAt(0));
+    let res=await crypto.subtle.decrypt({name:"RSA-OAEP"},key,buf);
+    return new TextDecoder().decode(res);
+}
+
+async function saveUser(){
+    let nombre=nombreInput.value;
+    let correo=correoInput.value;
+    let bits=bitsInput.value;
+
+    let keys=await genKeys(bits);
+    let user={nombre,correo,bits,...keys};
+
+    localStorage.setItem("user",JSON.stringify(user));
+    userInfo.innerText="Usuario activo: "+nombre;
+}
+
+async function crear(){
+    let user=JSON.parse(localStorage.getItem("user"));
+    let texto=textoInput.value;
+
+    let db=getDB();
+
+    let cif=await encrypt(texto,user.pub);
+
+    let obj={
+        token:uid(),
+        cifrado:cif,
+        user:user.nombre,
+        estado:"activo",
+        creado:new Date().toISOString(),
+        expiracion:new Date(Date.now()+7*86400000).toISOString(),
+        intentos:0
+    };
+
+    db.push(obj);
+    saveDB(db);
+
+    logAudit("CIFRADO",obj.token);
+
+    out.innerHTML="<div class='mono'>"+obj.token+"</div>";
+
+    render();
 
 
