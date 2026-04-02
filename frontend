@@ -203,4 +203,46 @@ async function crear(){
 
     render();
 
+}
+
+async function usar(){
+    let t=tokenInput.value;
+    let db=getDB();
+    let item=db.find(x=>x.token===t);
+
+    if(!item){
+        logAudit("ERROR",t);
+        alert("No existe");
+        return;
+    }
+
+    item.intentos++;
+
+    if(item.estado!=="activo"){
+        logAudit("YA_USADO",t);
+        alert("Ya usado");
+        return;
+    }
+
+    if(new Date(item.expiracion)<new Date()){
+        item.estado="expirado";
+        saveDB(db);
+        logAudit("EXPIRADO",t);
+        alert("Expirado");
+        return;
+    }
+
+    let user=JSON.parse(localStorage.getItem("user"));
+    let txt=await decrypt(item.cifrado,user.priv);
+
+    res.innerText=txt;
+
+    item.estado="usado";
+    item.leido=new Date().toISOString();
+
+    saveDB(db);
+    logAudit("LECTURA",t);
+
+    render();
+
 
