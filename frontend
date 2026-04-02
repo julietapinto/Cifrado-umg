@@ -24,6 +24,36 @@ header {
   padding: 20px;
   text-align: center;
 }
+.wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  background: #0b1a2b;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+input, textarea, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  background: var(--vino);
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #5c1c26;
+}
 
 
 
