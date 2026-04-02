@@ -55,5 +55,42 @@ button:hover {
   background: #5c1c26;
 }
 
+.mono {
+  font-family: monospace;
+  background: #111;
+  padding: 8px;
+  border-radius: 6px;
+  word-break: break-all;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>🔐 Sistema de Tokens Seguro</h2>
+</header>
+
+<div class="wrap">
+
+<div class="card">
+<h3>Usuario</h3>
+<input id="nombre" placeholder="Nombre">
+<input id="correo" placeholder="Correo">
+<select id="bits">
+<option>1024</option>
+<option selected>2048</option>
+<option>4096</option>
+</select>
+<button onclick="saveUser()">Guardar</button>
+<p id="userInfo"></p>
+</div>
+
+<div class="card">
+<h3>Cifrar</h3>
+<textarea id="texto"></textarea>
+<button onclick="crear()">Generar Token</button>
+<div id="out"></div>
+</div>
 
 
